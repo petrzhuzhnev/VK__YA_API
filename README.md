@@ -4,4 +4,4 @@
 * установка всех пакетов:
 ###### pip install -r requirements.txt
 
-* в файлу .env указать свой токен для VK, YA и версию API VK
+* в файле .env указать свой токен для VK, YA и версию API VK
