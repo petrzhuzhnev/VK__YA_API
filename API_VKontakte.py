@@ -1,5 +1,5 @@
 import requests
-
+from datetime import datetime
 
 class VkApi:
 
@@ -8,14 +8,12 @@ class VkApi:
     def __init__(self, access_token, version):
         self.params = {
             'access_token': access_token,
-            'v': version
-        }
+            'v': version}
         self.list_foto = []
         self.dict_foto = {
-            "file_name": "",
-            "size": "",
-            "url": ""
-        }
+                "file_name": "",
+                "size": "",
+                "url": ""}
 
 
     def get_last_foto(self, user_id): #моя собственная логика получения фото, так как не заметил метод в api
@@ -44,12 +42,37 @@ class VkApi:
                   }
         respons = requests.get(method_url, params=params)
         data = respons.json()['response']['items']
+
         for foto in data:
-            self.dict_foto['file_name'] = f"{foto['likes']['count']}.jpg"
+            list_likes = []
+            if foto['likes']['count'] in list_likes: #если количство лайков совпадает добавляется дата без формата
+                datetime_obj = datetime.fromtimestamp(foto['date'])
+                formatted_date = datetime_obj.strftime("%Y-%m-%d")
+                self.dict_foto['file_name'] = f"{foto['likes']['count']}{formatted_date}.jpg"
+            else:
+                self.dict_foto['file_name'] = f"{foto['likes']['count']}.jpg"
+                list_likes.append(foto['likes']['count'])
+
+
             max_size_foto = max(foto['sizes'], key=lambda x: x['type'])['type']
             self.dict_foto['size'] = max_size_foto
             self.dict_foto['url'] = [foto_url['url'] for foto_url in foto['sizes'] if foto_url['type'] == max_size_foto][0]
             self.list_foto.append(self.dict_foto.copy()) #в список мы добавляем копию, чтобы последующие не перетирали старые данные
+
+
+
+    def id_in_screen_name(self, screen_name):
+        if screen_name.isdigit():
+            return int(screen_name)
+        else:
+            method_url = f'{self.base_url}utils.resolveScreenName'
+            params = {'screen_name': screen_name,
+                      **self.params}
+            respons = requests.get(method_url, params=params)
+            return respons.json()['response']['object_id']
+
+
+
 
 
 

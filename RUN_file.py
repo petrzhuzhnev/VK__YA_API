@@ -16,10 +16,15 @@ if __name__ == '__main__':
     vk = VkApi(vk_token, vers)
     ya = YandexApi(ya_token)
     w = Processing()
+
     print("Приветствую вас!")
-    id = input(f'Введите ID gользователя: ')
+    id = input(f'Введите ID или SCREEN_NAME: ')
     count = int(input(f'Введите количество фотографий профиля: '))
+    folder = ya.create_folder(input('Введите название папки: '))
+    id = vk.id_in_screen_name(id)
     data_foto = vk.get_few_foto(id, count)
     list_foto = vk.list_foto
+    w.write_dock(list_foto) #запись в json
+
     for foto in tqdm(list_foto, desc='Uploading file'): #библиотека для лодера
-        ya.upload_foto(f"new7/{foto['file_name']}", foto['url'])
+        ya.upload_foto(f"{folder}/{foto['file_name']}", foto['url'])
